@@ -48,19 +48,20 @@ describe('UserService', () => {
     userRepository = app.get<MockRepository<UserEntity>>('USER_REPOSITORY');
   });
 
-  const createArgs = new UserEntity();
-  createArgs.name = 'test';
-  createArgs.email = 'testEmail';
-
   it('should be defined', () => {
     expect(service).toBeDefined();
     expect(userRepository).toBeDefined();
   });
 
-  it('유저들 찾기 (에러)', async () => {
-    userRepository.find.mockRejectedValue(null);
+  it('유저들 찾기', async () => {
+    userRepository.find.mockRejectedValue([]);
     const result = await service.findUsers();
-    console.log(result);
     expect(result).toEqual([]);
+  });
+
+  it('유저 1명 찾기', async () => {
+    const createArgs = new UserEntity();
+    createArgs.name = 'test';
+    createArgs.email = 'testEmail';
   });
 });

@@ -12,6 +12,9 @@ export class PostEntity {
   @Column()
   content: string;
 
+  @Column({ type: 'date', default: new Date() })
+  createdAt: Date;
+
   @ManyToOne(() => UserEntity, (user) => user.posts)
   user: UserEntity;
 }
