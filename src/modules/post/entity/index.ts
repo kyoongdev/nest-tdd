@@ -1,4 +1,4 @@
-import { UserEntity } from 'src/modules/user/entity';
+import { UserEntity } from 'modules/user/entity';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity({ name: 'post' })

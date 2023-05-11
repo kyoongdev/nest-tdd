@@ -1,27 +1,28 @@
 import { FactoryProvider } from '@nestjs/common';
-import type { TypeOrmModuleOptions } from '@nestjs/typeorm';
-import { Entities } from 'src/modules';
-import { DataSource, DataSourceOptions } from 'typeorm';
+import { Entities } from 'modules';
+import { DataSource } from 'typeorm';
 
-export const typeORMConfig: DataSourceOptions = {
+const dataSource = new DataSource({
   type: 'mysql',
   host: '127.0.0.1',
   port: 3306,
   username: 'root',
   password: '1234user',
   database: 'nestjs',
-  synchronize: true,
+  synchronize: false,
   entities: Entities,
-  // dropSchema: true,
   logging: true,
-};
+  migrations: ['src/database/migrations/*.ts'],
+  migrationsTableName: 'migrations',
+});
+
+export const DATA_SOURCE = Symbol('DATA_SOURCE');
 
 export const databaseProviders: FactoryProvider[] = [
   {
-    provide: 'DATA_SOURCE',
-    useFactory: async () => {
-      const dataSource = new DataSource(typeORMConfig);
-      return dataSource.initialize();
-    },
+    provide: DATA_SOURCE,
+    useFactory: async () => dataSource.initialize(),
   },
 ];
+
+export default dataSource;
