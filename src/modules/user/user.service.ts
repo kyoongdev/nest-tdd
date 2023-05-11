@@ -1,19 +1,28 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { FindManyOptions, Repository } from 'typeorm';
 import { UserEntity } from './entity';
-import { USER_REPOSITORY } from './user.providers';
-import { UserException } from './exception/user.exception';
-import { USER_ERROR_CODE } from './exception/errorCode';
 
 @Injectable()
 export class UserService {
   constructor(
-    @Inject(USER_REPOSITORY)
+    @InjectRepository(UserEntity)
     private userRepository: Repository<UserEntity>,
   ) {}
 
-  async findUsers() {
-    return await this.userRepository.find({});
+  async findUsers(args = {} as FindManyOptions<UserEntity>) {
+    const [rows, count] = await this.userRepository.findAndCount(args);
+    const result = await this.userRepository
+      .createQueryBuilder('user')
+      .select('user.name as name')
+      .groupBy('user.name')
+      .addSelect(`COUNT(*) AS count`)
+      .getRawMany<{ name: string; count: string }>();
+
+    return {
+      users: rows,
+      count,
+    };
   }
 
   async findUser(id: string) {
@@ -23,7 +32,7 @@ export class UserService {
       },
     });
     if (!user) {
-      throw new UserException(USER_ERROR_CODE.NOT_FOUND);
+      // throw new UserException(USER_ERROR_CODE.NOT_FOUND);
     }
 
     return user;
