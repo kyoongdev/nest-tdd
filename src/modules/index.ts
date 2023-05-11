@@ -1,9 +1,7 @@
 import { UserModule } from './user/user.module';
 import { PostModule } from './post/post.module';
-import { UserEntity } from './user/entity';
-import { PostEntity } from './post/entity';
+import { GlobalModule } from './global';
 
-const Modules = [UserModule, PostModule];
-export const Entities = [UserEntity, PostEntity];
+const Modules = [GlobalModule, UserModule, PostModule];
 
 export default Modules;
