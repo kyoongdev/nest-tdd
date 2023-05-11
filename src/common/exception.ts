@@ -1,5 +1,3 @@
-import { HttpStatus } from '@nestjs/common';
-
 export const HTTP_STATUS = {
   CONTINUE: 100,
   SWITCHING_PROTOCOLS: 101,
@@ -51,14 +49,13 @@ export const HTTP_STATUS = {
   HTTP_VERSION_NOT_SUPPORTED: 505,
 } as const;
 
-type ValueOf<T> = T[keyof T];
+export type HttpStatus = typeof HTTP_STATUS;
+export type HttpStatusType = keyof HttpStatus;
 
-export interface BaseErrorCode<K extends HttpStatusType> {
+export interface BaseErrorCode<K = HttpStatusType> {
   message: string;
-  code: ValueOf<K>;
+  code: HttpStatus[keyof HttpStatus];
 }
-
-export type HttpStatusType = keyof Partial<typeof HTTP_STATUS>;
 
 export type ErrorCode<T extends HttpStatusType> = {
   [K in T]: BaseErrorCode<K>;
