@@ -1,31 +1,60 @@
+import { PrismaModule } from '@/database/prisma.module';
 import { PrismaService } from '@/database/prisma.service';
 import { UserService } from '@/modules/user/user.service';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
-import type { PrismaClient } from '@prisma/client';
-import { type DeepMockProxy, mockDeep } from 'jest-mock-extended';
 
 describe('UserService', () => {
   let app: TestingModule;
   let userService: UserService;
-  let prismaService: DeepMockProxy<PrismaService>;
 
   beforeAll(async () => {
     app = await Test.createTestingModule({
       imports: [ConfigModule.forRoot()],
       providers: [UserService, PrismaService],
-    })
-      .overrideProvider(PrismaService)
-      .useValue(mockDeep<PrismaClient>())
-      .compile();
+    }).compile();
 
     userService = app.get<UserService>(UserService);
-    prismaService = app.get<DeepMockProxy<PrismaService>>(PrismaService);
   });
 
   it('should be defined', () => {
     expect(userService).toBeDefined();
-    expect(prismaService).toBeDefined();
+  });
+
+  describe('findUsers / findUser', () => {
+    it('유저 찾기[빈 배열] (성공)', async () => {
+      await expect(userService.findUsers()).resolves.toEqual([]);
+    });
+
+    it('유저 찾기[where clause] (성공)', async () => {
+      const users = [
+        {
+          id: '1',
+          name: 'Rich',
+          email: 'hello@prisma.io',
+          age: 12,
+        },
+        {
+          id: '2',
+          name: 'James',
+          email: 'james@prisma.io',
+          age: 16,
+        },
+      ];
+
+      const createdUsers = await Promise.all(
+        users.map((user) => userService.createUser(user)),
+      );
+
+      await expect(userService.findUsers()).resolves.toEqual(createdUsers);
+      await expect(
+        userService.findUsers({
+          where: {
+            name: 'Rich',
+          },
+        }),
+      ).resolves.toEqual([users[0]]);
+    });
   });
 
   describe('createUser', () => {
@@ -36,9 +65,6 @@ describe('UserService', () => {
         email: 'hello@prisma.io',
         age: 12,
       };
-      prismaService.user.create.mockResolvedValue(user);
-      // console.log(prismaService.user?.create);
-      // prismaService.user.create.mockResolvedValue(user);
 
       await expect(userService.createUser(user)).resolves.toEqual({
         id: '1',
@@ -47,5 +73,9 @@ describe('UserService', () => {
         age: 12,
       });
     });
+  });
+
+  afterEach(async () => {
+    await userService.deleteUsers();
   });
 });

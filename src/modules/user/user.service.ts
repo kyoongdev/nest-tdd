@@ -18,4 +18,8 @@ export class UserService {
     });
     return user;
   }
+
+  async deleteUsers() {
+    await this.database.user.deleteMany();
+  }
 }
