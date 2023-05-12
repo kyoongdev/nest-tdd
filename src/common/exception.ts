@@ -52,11 +52,11 @@ export const HTTP_STATUS = {
 export type HttpStatus = typeof HTTP_STATUS;
 export type HttpStatusType = keyof HttpStatus;
 
-export interface BaseErrorCode<K = HttpStatusType> {
+export interface BaseErrorCode {
   message: string;
   code: HttpStatus[keyof HttpStatus];
 }
 
 export type ErrorCode<T extends HttpStatusType> = {
-  [K in T]: BaseErrorCode<K>;
+  [K in T]: BaseErrorCode;
 };

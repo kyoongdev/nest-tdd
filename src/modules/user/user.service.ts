@@ -1,6 +1,7 @@
 import { PrismaService } from '@/database/prisma.service';
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
+import { CreateUserDTO } from './dto/create-user.dto';
 
 @Injectable()
 export class UserService {
@@ -9,5 +10,12 @@ export class UserService {
   async findUsers(args = {} as Prisma.UserFindManyArgs) {
     const users = await this.database.user.findMany(args);
     return users;
+  }
+
+  async createUser(props: CreateUserDTO) {
+    const user = await this.database.user.create({
+      data: props,
+    });
+    return user;
   }
 }
